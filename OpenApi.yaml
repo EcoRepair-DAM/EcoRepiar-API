@@ -1,0 +1,713 @@
+openapi: 3.0.3
+
+info:
+  title: EcoRepair API
+  description: >
+    API REST para la gestión de dispositivos electrónicos y sus reparaciones.
+    Fomenta la reutilización, reparación y consumo responsable (ODS 12 – Agenda 2030).
+  version: 1.0.0
+  contact:
+    name: EcoRepair Team
+    email: admin@ecorepair.com
+
+servers:
+  - url: http://localhost:8080
+    description: Servidor de desarrollo local
+
+tags:
+  - name: Devices
+    description: Operaciones relacionadas con dispositivos
+  - name: Repairs
+    description: Operaciones relacionadas con reparaciones
+
+components:
+  schemas:
+
+    # =========================
+    # ERROR RESPONSE
+    # =========================
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 400
+        error:
+          type: string
+          example: "Validation error"
+        message:
+          type: string
+          example: "Device no encontrado con ID: 10"
+        messages:
+          type: object
+          additionalProperties:
+            type: string
+          example:
+            name: "El nombre es obligatorio"
+
+    # =========================
+    # DEVICE SCHEMAS
+    # =========================
+    DeviceInDto:
+      type: object
+      required:
+        - name
+        - type
+        - brand
+        - reusable
+        - purchaseDate
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          example: "iPhone 12"
+        type:
+          type: string
+          maxLength: 50
+          example: "Smartphone"
+        brand:
+          type: string
+          maxLength: 50
+          example: "Apple"
+        reusable:
+          type: boolean
+          example: true
+        purchaseDate:
+          type: string
+          format: date
+          example: "2022-05-10"
+
+    DeviceOutDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: "iPhone 12"
+        type:
+          type: string
+          example: "Smartphone"
+        brand:
+          type: string
+          example: "Apple"
+        reusable:
+          type: boolean
+          example: true
+        purchaseDate:
+          type: string
+          format: date
+          example: "2022-05-10"
+
+    # =========================
+    # REPAIR SCHEMAS
+    # =========================
+    RepairInDto:
+      type: object
+      required:
+        - description
+        - cost
+        - repairDate
+        - repair
+        - deviceId
+      properties:
+        description:
+          type: string
+          example: "Cambio de batería"
+        cost:
+          type: number
+          format: double
+          minimum: 0
+          example: 79.99
+        repairDate:
+          type: string
+          format: date
+          example: "2024-01-15"
+        repair:
+          type: boolean
+          example: true
+        deviceId:
+          type: integer
+          format: int64
+          example: 1
+
+    RepairOutDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 3
+        description:
+          type: string
+          example: "Cambio de batería"
+        cost:
+          type: number
+          format: double
+          example: 79.99
+        repairDate:
+          type: string
+          format: date
+          example: "2024-01-15"
+        repair:
+          type: boolean
+          example: true
+        deviceId:
+          type: integer
+          format: int64
+          example: 1
+
+paths:
+
+  # =========================
+  # DEVICES ENDPOINTS
+  # =========================
+  /devices:
+    get:
+      tags:
+        - Devices
+      summary: Listar dispositivos con filtros opcionales
+      description: >
+        Obtiene una lista de dispositivos electrónicos registrados en el sistema.
+        Se pueden aplicar filtros por nombre, tipo o marca.
+      parameters:
+        - name: name
+          in: query
+          description: Filtrar por nombre del dispositivo
+          required: false
+          schema:
+            type: string
+          example: "iPhone"
+        - name: type
+          in: query
+          description: Filtrar por tipo de dispositivo
+          required: false
+          schema:
+            type: string
+          example: "Smartphone"
+        - name: brand
+          in: query
+          description: Filtrar por marca del dispositivo
+          required: false
+          schema:
+            type: string
+          example: "Apple"
+      responses:
+        '200':
+          description: Lista de dispositivos obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeviceOutDto'
+              examples:
+                listaDevices:
+                  summary: Lista con dos dispositivos
+                  value:
+                    - id: 1
+                      name: "iPhone 12"
+                      type: "Smartphone"
+                      brand: "Apple"
+                      reusable: true
+                      purchaseDate: "2022-05-10"
+        '400':
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 400
+                error: "Validation error"
+                messages:
+                  name: "Formato de nombre inválido"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 500
+                error: "Internal Server Error"
+                message: "Unexpected server error"
+
+    post:
+      tags:
+        - Devices
+      summary: Crear un nuevo dispositivo
+      description: Registra un nuevo dispositivo electrónico en el sistema.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceInDto'
+            examples:
+              dispositivoBasico:
+                summary: Dispositivo reutilizable
+                value:
+                  name: "Samsung Galaxy S21"
+                  type: "Smartphone"
+                  brand: "Samsung"
+                  reusable: true
+                  purchaseDate: "2023-03-15"
+      responses:
+        '201':
+          description: Dispositivo creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceOutDto'
+        '400':
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 400
+                error: "Validation error"
+                messages:
+                  name: "Formato de nombre inválido"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 500
+                error: "Internal Server Error"
+                message: "Unexpected server error"
+
+  /devices/{id}:
+    get:
+      tags:
+        - Devices
+      summary: Obtener un dispositivo por ID
+      description: Recupera la información de un dispositivo específico.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del dispositivo
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        '200':
+          description: Dispositivo encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceOutDto'
+        '404':
+          description: Dispositivo no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 404
+                error: "Not Found"
+                message: "Device no encontrado con ID: 1"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 500
+                error: "Internal Server Error"
+                message: "Unexpected server error"
+
+    put:
+      tags:
+        - Devices
+      summary: Actualizar un dispositivo
+      description: Actualiza completamente un dispositivo existente.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del dispositivo
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceInDto'
+      responses:
+        '200':
+          description: Dispositivo actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceOutDto'
+        '400':
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 400
+                error: "Validation error"
+                messages:
+                  name: "Formato de nombre inválido"
+        '404':
+          description: Dispositivo no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 404
+                error: "Not Found"
+                message: "Device no encontrado con ID: 1"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 500
+                error: "Internal Server Error"
+                message: "Unexpected server error"
+
+    delete:
+      tags:
+        - Devices
+      summary: Eliminar un dispositivo
+      description: Elimina un dispositivo del sistema.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del dispositivo
+          schema:
+            type: integer
+            format: int64
+          example: 3
+      responses:
+        '204':
+          description: Dispositivo eliminado exitosamente
+        '404':
+          description: Dispositivo no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 404
+                error: "Not Found"
+                message: "Device no encontrado con ID: 1"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 500
+                error: "Internal Server Error"
+                message: "Unexpected server error"
+
+  # =========================
+  # REPAIRS ENDPOINTS
+  # =========================
+  /repairs:
+    get:
+      tags:
+        - Repairs
+      summary: Listar reparaciones con filtros opcionales
+      description: >
+        Obtiene una lista de reparaciones realizadas sobre dispositivos.
+        Se pueden aplicar filtros por dispositivo o estado de reparación.
+      parameters:
+        - name: deviceId
+          in: query
+          description: Filtrar por ID del dispositivo
+          required: false
+          schema:
+            type: integer
+            format: int64
+          example: 1
+        - name: repair
+          in: query
+          description: Filtrar por estado de la reparación
+          required: false
+          schema:
+            type: boolean
+          example: true
+      responses:
+        '200':
+          description: Lista de reparaciones obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RepairOutDto'
+              examples:
+                listaRepairs:
+                  summary: Lista con dos reparaciones
+                  value:
+                    - id: 1
+                      description: "Cambio de batería"
+                      cost: 79.99
+                      repairDate: "2024-01-15"
+                      repair: true
+                      deviceId: 1
+        '400':
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 400
+                error: "Validation error"
+                messages:
+                  name: "Formato de nombre inválido"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 500
+                error: "Internal Server Error"
+                message: "Unexpected server error"
+
+    post:
+      tags:
+        - Repairs
+      summary: Crear una nueva reparación
+      description: Registra una nueva reparación asociada a un dispositivo.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RepairInDto'
+            examples:
+              reparacionBasica:
+                summary: Reparación estándar
+                value:
+                  description: "Cambio de batería"
+                  cost: 79.99
+                  repairDate: "2024-01-15"
+                  repair: true
+                  deviceId: 1
+      responses:
+        '201':
+          description: Reparación creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepairOutDto'
+        '400':
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 400
+                error: "Validation error"
+                messages:
+                  cost: "El coste debe ser positivo"
+        '404':
+          description: Dispositivo no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 404
+                error: "Not Found"
+                message: "Device no encontrado con ID: 1"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 500
+                error: "Internal Server Error"
+                message: "Unexpected server error"
+
+  /repairs/{id}:
+    get:
+      tags:
+        - Repairs
+      summary: Obtener una reparación por ID
+      description: Recupera la información detallada de una reparación concreta.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la reparación
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        '200':
+          description: Reparación encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepairOutDto'
+              examples:
+                reparacionEncontrada:
+                  summary: Reparación existente
+                  value:
+                    id: 1
+                    description: "Cambio de batería"
+                    cost: 79.99
+                    repairDate: "2024-01-15"
+                    repair: true
+                    deviceId: 1
+        '404':
+          description: Reparación no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 404
+                error: "Not Found"
+                message: "Repair no encontrada con ID: 1"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 500
+                error: "Internal Server Error"
+                message: "Unexpected server error"
+
+    put:
+      tags:
+        - Repairs
+      summary: Actualizar una reparación
+      description: Actualiza completamente los datos de una reparación existente.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la reparación
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RepairInDto'
+            examples:
+              actualizacionCompleta:
+                summary: Actualización completa de reparación
+                value:
+                  description: "Sustitución de pantalla"
+                  cost: 149.99
+                  repairDate: "2024-02-10"
+                  repair: true
+                  deviceId: 1
+      responses:
+        '200':
+          description: Reparación actualizada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepairOutDto'
+        '400':
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 400
+                error: "Validation error"
+                messages:
+                  cost: "El coste debe ser positivo"
+        '404':
+          description: Reparación o dispositivo no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 404
+                error: "Not Found"
+                message: "Repair no encontrada con ID: 1"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 500
+                error: "Internal Server Error"
+                message: "Unexpected server error"
+
+    delete:
+      tags:
+        - Repairs
+      summary: Eliminar una reparación
+      description: Elimina una reparación del sistema.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la reparación
+          schema:
+            type: integer
+            format: int64
+          example: 3
+      responses:
+        '204':
+          description: Reparación eliminada exitosamente
+        '404':
+          description: Reparación no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 404
+                error: "Not Found"
+                message: "Repair no encontrada con ID: 3"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 500
+                error: "Internal Server Error"
+                message: "Unexpected server erro"
+
+
