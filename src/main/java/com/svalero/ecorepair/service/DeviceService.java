@@ -1,10 +1,10 @@
-package com.reparaciones.api.service;
+package com.svalero.ecorepair.service;
 
-import com.reparaciones.api.domain.Device;
-import com.reparaciones.api.dto.DeviceInDto;
-import com.reparaciones.api.dto.DeviceOutDto;
-import com.reparaciones.api.exception.DeviceNotFoundException;
-import com.reparaciones.api.repository.DeviceRepository;
+import com.svalero.ecorepair.domain.Device;
+import com.svalero.ecorepair.dto.DeviceInDto;
+import com.svalero.ecorepair.dto.DeviceOutDto;
+import com.svalero.ecorepair.exception.DeviceNotFoundException;
+import com.svalero.ecorepair.repository.DeviceRepository;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +22,12 @@ public class DeviceService {
     private ModelMapper modelMapper;
 
     // POST /devices
-    public Device add(Device device) {
-        return deviceRepository.save(device);
+    public DeviceOutDto add(DeviceInDto deviceInDto) {
+
+        Device device = modelMapper.map(deviceInDto, Device.class);
+
+        Device deviceGuardado = deviceRepository.save(device);
+        return modelMapper.map(deviceGuardado, DeviceOutDto.class);
     }
 
     // DELETE /devices/{id}
@@ -52,14 +56,14 @@ public class DeviceService {
 
     // PUT /devices/{id}
     public DeviceOutDto modify(long id, DeviceInDto deviceInDto) {
+
         Device deviceExistente = deviceRepository.findById(id)
                 .orElseThrow(() ->
                         new DeviceNotFoundException("Device no encontrado con ID: " + id));
 
-        // Volcamos el DTO sobre la entidad existente
+        // Volcamos los datos simples
         modelMapper.map(deviceInDto, deviceExistente);
 
-        // Aseguramos el ID
         deviceExistente.setId(id);
 
         Device deviceGuardado = deviceRepository.save(deviceExistente);

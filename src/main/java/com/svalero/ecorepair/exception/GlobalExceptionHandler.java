@@ -1,4 +1,4 @@
-package com.reparaciones.api.exception;
+package com.svalero.ecorepair.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +16,7 @@ public class GlobalExceptionHandler {
     // -------------------- 400 - VALIDATION --------------------
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidation(
+    public ResponseEntity<Map<String, Object>> handleValidation(
             MethodArgumentNotValidException ex) {
 
         Map<String, String> errors = new HashMap<>();
@@ -26,10 +26,12 @@ public class GlobalExceptionHandler {
             errors.put(field, error.getDefaultMessage());
         });
 
-        return new ResponseEntity<>(
-                ErrorResponse.validationError(errors),
-                HttpStatus.BAD_REQUEST
-        );
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", 400);
+        response.put("error", "Validation error");
+        response.put("messages", errors);
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     // -------------------- 404 - NOT FOUND --------------------
@@ -38,26 +40,26 @@ public class GlobalExceptionHandler {
             DeviceNotFoundException.class,
             RepairNotFoundException.class
     })
-    public ResponseEntity<ErrorResponse> handleNotFound(Exception ex) {
+    public ResponseEntity<Map<String, Object>> handleNotFound(RuntimeException ex) {
 
-        return new ResponseEntity<>(
-                ErrorResponse.notFound(ex.getMessage()),
-                HttpStatus.NOT_FOUND
-        );
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", 404);
+        response.put("error", "Not Found");
+        response.put("message", ex.getMessage());
+
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
     // -------------------- 500 - INTERNAL SERVER ERROR --------------------
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleInternalError(Exception ex) {
+    public ResponseEntity<Map<String, Object>> handleInternalError(Exception ex) {
 
-        return new ResponseEntity<>(
-                ErrorResponse.generalError(
-                        500,
-                        "internal-error",
-                        "Unexpected server error"
-                ),
-                HttpStatus.INTERNAL_SERVER_ERROR
-        );
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", 500);
+        response.put("error", "Internal Server Error");
+        response.put("message", "Unexpected server error");
+
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

@@ -1,6 +1,6 @@
-package com.reparaciones.api.repository;
+package com.svalero.ecorepair.repository;
 
-import com.reparaciones.api.domain.Device;
+import com.svalero.ecorepair.domain.Device;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

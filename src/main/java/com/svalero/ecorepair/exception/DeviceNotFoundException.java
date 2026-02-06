@@ -1,4 +1,4 @@
-package com.reparaciones.api.exception;
+package com.svalero.ecorepair.exception;
 
 public class DeviceNotFoundException extends RuntimeException {
 

@@ -1,23 +1,15 @@
-package com.reparaciones.api.controller;
+package com.svalero.ecorepair.controller;
 
-import com.reparaciones.api.domain.Device;
-import com.reparaciones.api.dto.DeviceInDto;
-import com.reparaciones.api.dto.DeviceOutDto;
-import com.reparaciones.api.exception.DeviceNotFoundException;
-import com.reparaciones.api.exception.ErrorResponse;
-import com.reparaciones.api.service.DeviceService;
+import com.svalero.ecorepair.dto.DeviceInDto;
+import com.svalero.ecorepair.dto.DeviceOutDto;
+import com.svalero.ecorepair.service.DeviceService;
 import jakarta.validation.Valid;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -26,9 +18,6 @@ public class DeviceController {
 
     @Autowired
     private DeviceService deviceService;
-
-    @Autowired
-    private ModelMapper modelMapper;
 
     // GET /devices
     @GetMapping
@@ -45,10 +34,10 @@ public class DeviceController {
 
     // POST /devices
     @PostMapping
-    public ResponseEntity<DeviceOutDto> addDevice(@Valid @RequestBody DeviceInDto deviceInDto) {
-        Device device = modelMapper.map(deviceInDto, Device.class);
-        Device newDevice = deviceService.add(device);
-        DeviceOutDto deviceOutDto = modelMapper.map(newDevice, DeviceOutDto.class);
+    public ResponseEntity<DeviceOutDto> addDevice(
+            @Valid @RequestBody DeviceInDto deviceInDto) {
+
+        DeviceOutDto deviceOutDto = deviceService.add(deviceInDto);
         return new ResponseEntity<>(deviceOutDto, HttpStatus.CREATED);
     }
 
@@ -67,33 +56,5 @@ public class DeviceController {
     public ResponseEntity<Void> deleteDevice(@PathVariable long id) {
         deviceService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    // ---------- EXCEPTION HANDLERS ----------
-
-    @ExceptionHandler(DeviceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleDeviceNotFound(DeviceNotFoundException ex) {
-        ErrorResponse errorResponse = ErrorResponse.notFound(ex.getMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String message = error.getDefaultMessage();
-            errors.put(fieldName, message);
-        });
-
-        ErrorResponse errorResponse = ErrorResponse.validationError(errors);
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleInternalServerError(Exception ex) {
-        ErrorResponse errorResponse =
-                ErrorResponse.generalError(500, "Internal Server Error", ex.getMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

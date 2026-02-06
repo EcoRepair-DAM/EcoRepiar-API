@@ -1,4 +1,4 @@
-package com.reparaciones.api.domain;
+package com.svalero.ecorepair.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

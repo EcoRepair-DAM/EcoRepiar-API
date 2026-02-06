@@ -1,4 +1,4 @@
-package com.reparaciones.api.dto;
+package com.svalero.ecorepair.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;

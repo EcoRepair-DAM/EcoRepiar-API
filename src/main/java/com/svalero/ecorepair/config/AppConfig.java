@@ -1,4 +1,4 @@
-package com.reparaciones.api.config;
+package com.svalero.ecorepair.config;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
