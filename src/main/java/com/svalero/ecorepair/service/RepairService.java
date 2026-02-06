@@ -75,10 +75,8 @@ public class RepairService {
                 .orElseThrow(() ->
                         new RepairNotFoundException("Repair no encontrada con ID: " + id));
 
-        // Volcamos los datos simples
         modelMapper.map(repairInDto, repairExistente);
 
-        // Resolución correcta de la FK
         Device device = deviceRepository.findById(repairInDto.getDeviceId())
                 .orElseThrow(() ->
                         new DeviceNotFoundException(
@@ -86,7 +84,6 @@ public class RepairService {
                         ));
 
         repairExistente.setDevice(device);
-        repairExistente.setId(id);
 
         Repair repairGuardada = repairRepository.save(repairExistente);
         return modelMapper.map(repairGuardada, RepairOutDto.class);

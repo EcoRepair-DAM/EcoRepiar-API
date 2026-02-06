@@ -64,7 +64,7 @@ public class DeviceService {
         // Volcamos los datos simples
         modelMapper.map(deviceInDto, deviceExistente);
 
-        deviceExistente.setId(id);
+
 
         Device deviceGuardado = deviceRepository.save(deviceExistente);
         return modelMapper.map(deviceGuardado, DeviceOutDto.class);

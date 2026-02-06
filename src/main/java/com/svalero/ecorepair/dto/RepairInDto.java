@@ -14,7 +14,6 @@ import java.time.LocalDate;
 public class RepairInDto {
 
     @NotBlank(message = "La descripción es obligatoria")
-    @Size(max = 200)
     private String description;
 
     @NotNull(message = "El coste es obligatorio")
@@ -30,4 +29,26 @@ public class RepairInDto {
 
     @NotNull(message = "El deviceId es obligatorio")
     private Long deviceId;
+
+    // 🔽 SETTERS MANUALES (para que Spring pueda mapear el JSON)
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setCost(Double cost) {
+        this.cost = cost;
+    }
+
+    public void setRepairDate(LocalDate repairDate) {
+        this.repairDate = repairDate;
+    }
+
+    public void setRepair(Boolean repair) {
+        this.repair = repair;
+    }
+
+    public void setDeviceId(Long deviceId) {
+        this.deviceId = deviceId;
+    }
 }

@@ -32,4 +32,26 @@ public class DeviceInDto {
     @JsonFormat(pattern = "yyyy-MM-dd")
     @PastOrPresent(message = "La fecha de compra no puede ser futura")
     private LocalDate purchaseDate;
+
+    // 🔽 SETTERS MANUALES (para que Spring pueda mapear el JSON)
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    public void setReusable(Boolean reusable) {
+        this.reusable = reusable;
+    }
+
+    public void setPurchaseDate(LocalDate purchaseDate) {
+        this.purchaseDate = purchaseDate;
+    }
 }
