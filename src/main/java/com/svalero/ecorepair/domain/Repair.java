@@ -11,25 +11,26 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "devices")
-public class Device {
+@Table(name = "repair")
+public class Repair {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String name;
+    private String description;
 
     @Column(nullable = false)
-    private String type;
+    private double cost;
+
+    @Column(name = "repair_date", nullable = false)
+    private LocalDate repairDate;
 
     @Column(nullable = false)
-    private String brand;
+    private boolean repair;
 
-    @Column(nullable = false)
-    private boolean reusable;
-
-    @Column(name = "purchase_date", nullable = false)
-    private LocalDate purchaseDate;
+    @ManyToOne
+    @JoinColumn(name = "device_id", nullable = false)
+    private Device device;
 }
