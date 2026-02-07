@@ -15,22 +15,22 @@ public class DeviceOutDto {
 
     private long id;
 
-    @NotBlank(message = "El nombre es obligatorio")
+    @NotBlank(message = "Name is required")
     @Size(max = 100)
     private String name;
 
-    @NotBlank(message = "El tipo es obligatorio")
+    @NotBlank(message = "Type is required")
     @Size(max = 50)
     private String type;
 
-    @NotBlank(message = "La marca es obligatoria")
+    @NotBlank(message = "Brand is required")
     @Size(max = 50)
     private String brand;
 
-    @NotNull(message = "Debes indicar si el dispositivo es reutilizable")
+    @NotNull(message = "You must specify whether the device is reusable")
     private Boolean reusable;
 
-    @NotNull(message = "La fecha de compra es obligatoria")
+    @NotNull(message = "Purchase date is required")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate purchaseDate;
 }

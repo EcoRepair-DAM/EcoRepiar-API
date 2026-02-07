@@ -15,21 +15,21 @@ public class RepairOutDto {
 
     private long id;
 
-    @NotBlank(message = "La descripción es obligatoria")
+    @NotBlank(message = "Description is required")
     @Size(max = 200)
     private String description;
 
-    @NotNull(message = "El coste es obligatorio")
-    @Min(value = 0, message = "El coste debe ser positivo")
+    @NotNull(message = "Cost is required")
+    @Min(value = 0, message = "Cost must be positive")
     private Double cost;
 
-    @NotNull(message = "La fecha de reparación es obligatoria")
+    @NotNull(message = "Repair date is required")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate repairDate;
 
-    @NotNull(message = "Debes indicar si la reparación está finalizada")
+    @NotNull(message = "You must specify whether the repair is completed")
     private Boolean repair;
 
-    @NotNull(message = "El deviceId es obligatorio")
+    @NotNull(message = "Device ID is required")
     private Long deviceId;
 }

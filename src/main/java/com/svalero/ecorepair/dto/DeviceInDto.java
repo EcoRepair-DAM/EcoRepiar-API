@@ -13,27 +13,27 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class DeviceInDto {
 
-    @NotBlank(message = "El nombre es obligatorio")
+    @NotBlank(message = "The name is mandatory")
     @Size(max = 100)
     private String name;
 
-    @NotBlank(message = "El tipo es obligatorio")
+    @NotBlank(message = "Type is mandatory")
     @Size(max = 50)
     private String type;
 
-    @NotBlank(message = "La marca es obligatoria")
+    @NotBlank(message = "branch is mandatory")
     @Size(max = 50)
     private String brand;
 
-    @NotNull(message = "Debes indicar si el dispositivo es reutilizable")
+    @NotNull(message = "You have to indicate if device is reusable")
     private Boolean reusable;
 
-    @NotNull(message = "La fecha de compra es obligatoria")
+    @NotNull(message = "Purchase date is mandatory")
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @PastOrPresent(message = "La fecha de compra no puede ser futura")
+    @PastOrPresent(message = "purchase date cant be future")
     private LocalDate purchaseDate;
 
-    // 🔽 SETTERS MANUALES (para que Spring pueda mapear el JSON)
+    // SETTERS MANUALES (para que Spring pueda mapear el JSON)
 
     public void setName(String name) {
         this.name = name;
