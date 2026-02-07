@@ -43,3 +43,8 @@
 2026-02-07 01:00:05,277 INFO  [http-nio-8080-exec-5] c.s.e.config.RequestLoggingFilter - HTTP GET /devices -> 200 (3 ms)
 2026-02-07 01:00:06,306 INFO  [http-nio-8080-exec-3] c.s.e.config.RequestLoggingFilter - HTTP GET /devices -> 200 (2 ms)
 2026-02-07 01:00:08,019 INFO  [http-nio-8080-exec-7] c.s.e.config.RequestLoggingFilter - HTTP GET /devices -> 200 (2 ms)
+2026-02-07 01:12:17,623 INFO  [SpringApplicationShutdownHook] o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-02-07 01:12:17,626 INFO  [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-02-07 01:12:17,628 INFO  [SpringApplicationShutdownHook] o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-02-07 01:12:17,629 INFO  [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-02-07 01:12:17,631 INFO  [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
