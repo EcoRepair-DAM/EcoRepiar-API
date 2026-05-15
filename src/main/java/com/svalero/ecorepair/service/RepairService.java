@@ -30,14 +30,17 @@ public class RepairService {
     // POST /repairs
     public RepairOutDto add(RepairInDto repairInDto) {
 
-        Repair repair = modelMapper.map(repairInDto, Repair.class);
-
         Device device = deviceRepository.findById(repairInDto.getDeviceId())
                 .orElseThrow(() ->
                         new DeviceNotFoundException(
                                 "Device no encontrado con ID: " + repairInDto.getDeviceId()
                         ));
 
+        Repair repair = new Repair();
+        repair.setDescription(repairInDto.getDescription());
+        repair.setCost(repairInDto.getCost());
+        repair.setRepairDate(repairInDto.getRepairDate());
+        repair.setRepair(repairInDto.getRepair());
         repair.setDevice(device);
 
         Repair repairGuardada = repairRepository.save(repair);
@@ -75,14 +78,16 @@ public class RepairService {
                 .orElseThrow(() ->
                         new RepairNotFoundException("Repair no encontrada con ID: " + id));
 
-        modelMapper.map(repairInDto, repairExistente);
-
         Device device = deviceRepository.findById(repairInDto.getDeviceId())
                 .orElseThrow(() ->
                         new DeviceNotFoundException(
                                 "Device no encontrado con ID: " + repairInDto.getDeviceId()
                         ));
 
+        repairExistente.setDescription(repairInDto.getDescription());
+        repairExistente.setCost(repairInDto.getCost());
+        repairExistente.setRepairDate(repairInDto.getRepairDate());
+        repairExistente.setRepair(repairInDto.getRepair());
         repairExistente.setDevice(device);
 
         Repair repairGuardada = repairRepository.save(repairExistente);
