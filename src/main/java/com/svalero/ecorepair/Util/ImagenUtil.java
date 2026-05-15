@@ -1,4 +1,4 @@
-package com.svalero.ecorepair.util;
+package com.svalero.ecorepair.Util;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
