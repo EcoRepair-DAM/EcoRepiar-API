@@ -48,7 +48,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/devices/**", "/repairs/**", "/v2/devices/**")
                         .hasAnyRole("USER", "EDITOR", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/repairs")
-                        .hasAnyRole("USER", "EDITOR", "ADMIN")
+                        .hasAnyRole("EDITOR", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/repairs/**")
                         .hasAnyRole("EDITOR", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/repairs/**")
