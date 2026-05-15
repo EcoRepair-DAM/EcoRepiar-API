@@ -357,7 +357,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Portátil Dell Actualizado\",\n  \"type\": \"Laptop\",\n  \"brand\": \"Dell\",\n  \"reusable\": false,\n  \"purchaseDate\": \"2023-06-15\"\n}",
+              "raw": "{\n  \"name\": \"Portátil Dell Actualizado\",\n  \"type\": \"Laptop\",\n  \"brand\": \"Dell\",\n  \"reusable\": false,\n  \"purchaseDate\": \"2026-05-15\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
