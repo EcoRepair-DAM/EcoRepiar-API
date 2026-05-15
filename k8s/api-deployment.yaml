@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ecorepair-api
+  labels:
+    app: ecorepair
+    tier: api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ecorepair
+      tier: api
+  template:
+    metadata:
+      labels:
+        app: ecorepair
+        tier: api
+    spec:
+      containers:
+        - name: ecorepair-api
+          # CAMBIAR LA VERSIÓN EN FUNCION DE LA NECESIDAD!
+          image: a28731nerea/ecorepair-api:v1
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: ecorepair-secrets
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "aws"
