@@ -31,6 +31,7 @@ public class RepairService {
     public RepairOutDto add(RepairInDto repairInDto) {
 
         Repair repair = modelMapper.map(repairInDto, Repair.class);
+        repair.setId(null); // evita que ModelMapper mapee deviceId al id de la entidad
 
         Device device = deviceRepository.findById(repairInDto.getDeviceId())
                 .orElseThrow(() ->
