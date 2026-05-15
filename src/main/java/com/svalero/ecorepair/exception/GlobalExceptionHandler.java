@@ -1,5 +1,7 @@
 package com.svalero.ecorepair.exception;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -12,6 +14,8 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     // -------------------- 400 - VALIDATION --------------------
 
@@ -34,6 +38,19 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+    // -------------------- 409 - CONFLICT --------------------
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<Map<String, Object>> handleUserAlreadyExists(UserAlreadyExistsException ex) {
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", 409);
+        response.put("error", "Conflict");
+        response.put("message", ex.getMessage());
+
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
+
     // -------------------- 404 - NOT FOUND --------------------
 
     @ExceptionHandler({
@@ -54,6 +71,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleInternalError(Exception ex) {
+
+        log.error("Unexpected error: {}", ex.getMessage(), ex);
 
         Map<String, Object> response = new HashMap<>();
         response.put("status", 500);
