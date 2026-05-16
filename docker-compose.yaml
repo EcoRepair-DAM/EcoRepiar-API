@@ -1,0 +1,40 @@
+name: ecorepair
+services:
+  ecorepair-mariadb:
+    image: mariadb:11.3.2
+    container_name: ecorepair-mariadb
+    restart: always
+    environment:
+      MYSQL_USER: $MARIADB_USER
+      MYSQL_PASSWORD: $MARIADB_PASSWORD
+      MYSQL_DATABASE: $MARIADB_DATABASE
+      MYSQL_PORT: 3306
+      MYSQL_ROOT_PASSWORD: $MARIADB_ROOT_PASSWORD
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: [ CMD, healthcheck.sh, --connect, --innodb_initialized ]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    networks:
+      - network-ecorepair
+  api-ecorepair:
+    image: api-ecorepair
+    container_name: api-ecorepair
+    ports:
+      - "8080:8080"
+    depends_on:
+      ecorepair-mariadb:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: $PROFILE
+      SPRING_CONFIG_IMPORT: optional:configserver:http://host.docker.internal:8888
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - network-ecorepair
+networks:
+  network-ecorepair:
+    driver: bridge
+
