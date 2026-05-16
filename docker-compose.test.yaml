@@ -1,48 +1,51 @@
 name: ecorepair
 services:
-  ecorepair-mariadb:
+  db:
     image: mariadb:11.3.2
-    container_name: ecorepair-mariadb
-    restart: always
+    container_name: ecorepair-db
     environment:
-      MYSQL_USER: test_user
-      MYSQL_PASSWORD: test_password
-      MYSQL_DATABASE: aa1
-      MYSQL_PORT: 3306
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: ${MARIADB_USER}
+      MYSQL_PASSWORD: ${MARIADB_PASSWORD}
+      MYSQL_DATABASE: ${MARIADB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
     ports:
       - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
     healthcheck:
-      test: [ CMD, healthcheck.sh, --connect, --innodb_initialized ]
-      interval: 5s
-      timeout: 3s
-      retries: 3
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     networks:
       - network-ecorepair
 
-  api-ecorepair:
-    image: api-ecorepair
-    container_name: api-ecorepair-test
+  ecorepair-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ecorepair-api
     ports:
       - "8080:8080"
     depends_on:
-      ecorepair-mariadb:
+      db:
         condition: service_healthy
     environment:
-      SPRING_APPLICATION_JSON: '{
-        "spring.application.name": "ecorepair",
-        "server.port": "8080",
-        "spring.jpa.hibernate.ddl-auto": "update",
-        "spring.jpa.properties.hibernate.globally_quoted_identifiers": "true",
-        "spring.datasource.url": "jdbc:mariadb://ecorepair-mariadb:3306/aa1",
-        "spring.datasource.username": "aa1",
-        "spring.datasource.password": "aa1",
-        "spring.jpa.database-platform": "org.hibernate.dialect.MariaDBDialect",
-        "app.jwt.secret": "EcoRepairJwtSecretKeyForClassProject2026EcoRepairJwtSecretKey",
-        "app.jwt.expiration-ms": "3600000",
-      }'
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:mariadb://ecorepair-db:3306/${MARIADB_DATABASE}?serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: ${MARIADB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MARIADB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+      CLOUDINARY_FOLDER: ${CLOUDINARY_FOLDER}
     networks:
       - network-ecorepair
+volumes:
+  mariadb_data:
 
 networks:
   network-ecorepair:
