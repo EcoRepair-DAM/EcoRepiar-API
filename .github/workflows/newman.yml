@@ -1,0 +1,23 @@
+name: Integration tests with Newman
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  newman:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - run: mvn package
+      - run: docker build -f Dockerfile.prod -t api-ecorepair .
+      - run: docker compose -f docker-compose.test.yaml up -d
+      - run: sleep 10
+      - run: npm install -g newman
+      - run: newman run EcoRepiar-Test.postman_collection.json
