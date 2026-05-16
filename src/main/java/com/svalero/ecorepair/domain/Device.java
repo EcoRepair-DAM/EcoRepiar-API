@@ -32,4 +32,7 @@ public class Device {
 
     @Column(name = "purchaseDate", nullable = false)
     private LocalDate purchaseDate;
+
+    @Column(name = "image_url")
+    private String imageUrl;
 }

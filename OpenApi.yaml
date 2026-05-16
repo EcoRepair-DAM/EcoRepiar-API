@@ -172,6 +172,7 @@ paths:
       description: >
         Obtiene una lista de dispositivos electrónicos registrados en el sistema.
         Se pueden aplicar filtros por nombre, tipo o marca.
+      deprecated: true
       parameters:
         - name: name
           in: query
@@ -239,6 +240,7 @@ paths:
       tags:
         - Devices
       summary: Crear un nuevo dispositivo
+      deprecated: true
       description: Registra un nuevo dispositivo electrónico en el sistema.
       requestBody:
         required: true
@@ -289,6 +291,7 @@ paths:
       tags:
         - Devices
       summary: Obtener un dispositivo por ID
+      deprecated: true
       description: Recupera la información de un dispositivo específico.
       parameters:
         - name: id
@@ -331,6 +334,7 @@ paths:
       tags:
         - Devices
       summary: Actualizar un dispositivo
+      deprecated: true
       description: Actualiza completamente un dispositivo existente.
       parameters:
         - name: id
@@ -390,6 +394,7 @@ paths:
       tags:
         - Devices
       summary: Eliminar un dispositivo
+      deprecated: true
       description: Elimina un dispositivo del sistema.
       parameters:
         - name: id
@@ -424,6 +429,286 @@ paths:
                 error: "Internal Server Error"
                 message: "Unexpected server error"
 
+  # =========================
+  # DEVICES v2 (ACTUAL)
+  # =========================
+  /v2/devices:
+    get:
+      tags:
+        - Devices v2
+      summary: Listar todos los dispositivos
+      description: >
+        Obtiene todos los dispositivos registrados, incluyendo la URL de imagen de Cloudinary
+        cuando está disponible.
+      responses:
+        '200':
+          description: Lista de dispositivos obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeviceOutV2Dto'
+              example:
+                - id: 1
+                  name: "iPhone 12"
+                  type: "Smartphone"
+                  brand: "Apple"
+                  reusable: true
+                  purchaseDate: "2022-05-10"
+                  imageUrl: "https://res.cloudinary.com/demo/image/upload/v1234/iphone.jpg"
+                - id: 2
+                  name: "Laptop Dell XPS"
+                  type: "Portátil"
+                  brand: "Dell"
+                  reusable: true
+                  purchaseDate: "2021-03-15"
+                  imageUrl: null
+        '401':
+          description: Token ausente o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Devices v2
+      summary: Crear un nuevo dispositivo con imagen opcional
+      description: >
+        Registra un nuevo dispositivo. Si se adjunta un `file`, la imagen se sube a Cloudinary
+        y la URL pública se almacena en `imageUrl`.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeviceInV2Dto'
+            examples:
+              conImagen:
+                summary: Dispositivo con imagen
+                value:
+                  name: "Samsung Galaxy S21"
+                  type: "Smartphone"
+                  brand: "Samsung"
+                  reusable: true
+                  purchaseDate: "2023-03-15"
+                  file: "<binary>"
+              sinImagen:
+                summary: Dispositivo sin imagen
+                value:
+                  name: "Laptop Dell XPS"
+                  type: "Portátil"
+                  brand: "Dell"
+                  reusable: true
+                  purchaseDate: "2021-03-15"
+      responses:
+        '201':
+          description: Dispositivo creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceOutV2Dto'
+              example:
+                id: 5
+                name: "Samsung Galaxy S21"
+                type: "Smartphone"
+                brand: "Samsung"
+                reusable: true
+                purchaseDate: "2023-03-15"
+                imageUrl: "https://res.cloudinary.com/demo/image/upload/v1234/device.jpg"
+        '400':
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 400
+                error: "Validation error"
+                messages:
+                  name: "Name is required"
+                  purchaseDate: "Purchase date cannot be future"
+        '401':
+          description: Token ausente o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Sin permisos (se requiere EDITOR o ADMIN)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v2/devices/{id}:
+    get:
+      tags:
+        - Devices v2
+      summary: Obtener un dispositivo por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del dispositivo
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        '200':
+          description: Dispositivo encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceOutV2Dto'
+        '401':
+          description: Token ausente o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Dispositivo no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 404
+                error: "Not Found"
+                message: "Device not found with ID: 1"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Devices v2
+      summary: Actualizar un dispositivo
+      description: >
+        Actualiza los datos de un dispositivo. Si se adjunta un nuevo `file`,
+        la imagen anterior se elimina de Cloudinary y se sube la nueva.
+        Si no se adjunta `file`, se conserva la imagen existente.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del dispositivo
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeviceInV2Dto'
+      responses:
+        '200':
+          description: Dispositivo actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceOutV2Dto'
+        '400':
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Token ausente o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Sin permisos (se requiere EDITOR o ADMIN)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Dispositivo no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 404
+                error: "Not Found"
+                message: "Device not found with ID: 1"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Devices v2
+      summary: Eliminar un dispositivo
+      description: >
+        Elimina el dispositivo y, si tiene imagen asociada, también la elimina de Cloudinary.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del dispositivo
+          schema:
+            type: integer
+            format: int64
+          example: 3
+      responses:
+        '204':
+          description: Dispositivo eliminado exitosamente
+        '401':
+          description: Token ausente o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Sin permisos (se requiere EDITOR o ADMIN)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Dispositivo no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: 404
+                error: "Not Found"
+                message: "Device not found with ID: 3"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   # =========================
   # REPAIRS ENDPOINTS
   # =========================

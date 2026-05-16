@@ -1,0 +1,866 @@
+{
+  "info": {
+    "_postman_id": "9c91abd1-9022-4f17-a51f-2773827ac797",
+    "name": "EcoRepiar API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "49388030"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST /auth/register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201 o 400 (ya existe)\", () => {",
+                  "    pm.expect([201, 400]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"{{testPassword}}\",\n  \"role\": \"ADMIN\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /auth/login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", () => {",
+                  "    pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Respuesta tiene token\", () => {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"accessToken\");",
+                  "    pm.expect(json.accessToken).to.be.a(\"string\").and.not.empty;",
+                  "    pm.collectionVariables.set(\"token\", json.accessToken);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"{{testPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /auth/me",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => {",
+                  "    pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Tiene email\", () => {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"email\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Devices (v1)",
+      "item": [
+        {
+          "name": "GET /devices",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", () => {",
+                  "    pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Respuesta es un array\", () => {",
+                  "    pm.expect(pm.response.json()).to.be.an(\"array\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/devices",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "devices"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /devices",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201\", () => {",
+                  "    pm.expect(pm.response.code).to.eql(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Estructura correcta\", () => {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"id\");",
+                  "    pm.expect(json).to.have.property(\"name\");",
+                  "    pm.expect(json).to.have.property(\"brand\");",
+                  "    pm.collectionVariables.set(\"deviceId\", json.id);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Portátil Dell\",\n  \"type\": \"Laptop\",\n  \"brand\": \"Dell\",\n  \"reusable\": true,\n  \"purchaseDate\": \"2026-05-14\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/devices",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "devices"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /devices/:id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => {",
+                  "    pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "",
+                  "pm.test(\"ID coincide\", () => {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.id).to.eql(Number(pm.collectionVariables.get(\"deviceId\")));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/devices/{{deviceId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "devices",
+                "{{deviceId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PUT /devices/:id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => {",
+                  "    pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Nombre actualizado\", () => {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.name).to.eql(\"Portátil Dell Actualizado\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Portátil Dell Actualizado\",\n  \"type\": \"Laptop\",\n  \"brand\": \"Dell\",\n  \"reusable\": false,\n  \"purchaseDate\": \"2026-05-15\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/devices/{{deviceId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "devices",
+                "{{deviceId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE /devices/:id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 204\", () => {",
+                  "    pm.expect(pm.response.code).to.eql(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/devices/{{deviceId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "devices",
+                "{{deviceId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Repairs",
+      "item": [
+        {
+          "name": "GET /repairs",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => {",
+                  "    pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Respuesta es un array\", () => {",
+                  "    pm.expect(pm.response.json()).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/repairs",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "repairs"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /repairs",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201\", () => {",
+                  "    pm.expect(pm.response.code).to.eql(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Estructura correcta\", () => {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"id\");",
+                  "    pm.expect(json).to.have.property(\"description\");",
+                  "    pm.expect(json).to.have.property(\"cost\");",
+                  "    pm.collectionVariables.set(\"repairId\", json.id);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Cambio de pantalla rota\",\n  \"cost\": 89.99,\n  \"repairDate\": \"2026-05-14\",\n  \"repair\": false,\n  \"deviceId\": {{deviceId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/repairs",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "repairs"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /repairs/:id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => {",
+                  "    pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "",
+                  "pm.test(\"ID coincide\", () => {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.id).to.eql(Number(pm.collectionVariables.get(\"repairId\")));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/repairs/{{repairId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "repairs",
+                "{{repairId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PUT /repairs/:id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", () => {",
+                  "    pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Reparación marcada como completada\", () => {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.repair).to.eql(true);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Cambio de pantalla rota - COMPLETADO\",\n  \"cost\": 89.99,\n  \"repairDate\": \"2026-05-16\",\n  \"repair\": true,\n  \"deviceId\": {{deviceId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/repairs/{{repairId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "repairs",
+                "{{repairId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE /repairs/:id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 204\", () => {",
+                  "    pm.expect(pm.response.code).to.eql(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/repairs/{{repairId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "repairs",
+                "{{repairId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users (admin)",
+      "item": [
+        {
+          "name": "GET /users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => {",
+                  "    pm.expect(pm.response.code).to.eql(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Respuesta es un array\", () => {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.be.an(\"array\");",
+                  "    if (json.length > 0) {",
+                  "        pm.collectionVariables.set(\"userId\", json[0].id);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PUT /users/:id/role",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => {",
+                  "    pm.expect(pm.response.code).to.eql(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"ADMIN\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/users/{{userId}}/role",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "role"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE /users/:id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 204\", () => {",
+                  "    pm.expect(pm.response.code).to.eql(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/{{userId}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "testEmail",
+      "value": "test@ecorepair.com"
+    },
+    {
+      "key": "testPassword",
+      "value": "password123"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": ""
+    },
+    {
+      "key": "deviceId",
+      "value": ""
+    },
+    {
+      "key": "repairId",
+      "value": ""
+    }
+  ]
+}

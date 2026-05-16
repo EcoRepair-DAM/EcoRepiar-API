@@ -1,0 +1,52 @@
+name: ecorepair
+services:
+  db:
+    image: mariadb:11.3.2
+    container_name: ecorepair-db
+    environment:
+      MYSQL_USER: ${MARIADB_USER}
+      MYSQL_PASSWORD: ${MARIADB_PASSWORD}
+      MYSQL_DATABASE: ${MARIADB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - network-ecorepair
+
+  ecorepair-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ecorepair-api
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:mariadb://ecorepair-db:3306/${MARIADB_DATABASE}?serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: ${MARIADB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MARIADB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+      CLOUDINARY_FOLDER: ${CLOUDINARY_FOLDER}
+    networks:
+      - network-ecorepair
+volumes:
+  mariadb_data:
+
+networks:
+  network-ecorepair:
+    driver: bridge

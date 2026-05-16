@@ -1,0 +1,10 @@
+target/
+!target/*.jar
+*.log
+logs/
+.env*
+.git/
+.gitignore
+*.md
+docker-compose*.yaml
+docs
