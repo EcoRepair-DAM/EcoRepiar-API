@@ -16,13 +16,13 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       - name: Build jar
-      - run: mvn package -DskipTests
+        run: mvn package -DskipTests
 
       - name: Build Docker image
-      - run: docker build -f Dockerfile.prod -t api-ecorepair .
+        run: docker build -f Dockerfile.prod -t api-ecorepair .
 
       - name: Start services
-        run: docker compose up -d
+        run: docker compose -f docker-compose.test.yaml up -d
         env:
           MARIADB_DATABASE: ${{ secrets.MARIADB_DATABASE }}
           MARIADB_ROOT_PASSWORD: ${{ secrets.MARIADB_ROOT_PASSWORD }}
@@ -46,4 +46,4 @@ jobs:
         run: npm install -g newman
 
       - name: Run integration tests
-        run: newman run EcoRepiar-Test.postman_collection.json
+        run: newman run docs/EcoRepiar-Test.postman_collection.json
