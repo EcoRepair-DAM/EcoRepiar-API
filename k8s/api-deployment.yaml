@@ -20,7 +20,7 @@ spec:
       containers:
         - name: ecorepair-api
           # CAMBIAR LA VERSIÓN EN FUNCION DE LA NECESIDAD!
-          image: a28731nerea/ecorepair-api:v2
+          image: a28731nerea/ecorepair-api:v3
           ports:
             - containerPort: 8080
           envFrom:
